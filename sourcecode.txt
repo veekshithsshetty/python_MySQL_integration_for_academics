@@ -1,0 +1,181 @@
+# Database connection
+db = mysql.connect(host="localhost", user="root", password="", database="college")
+query = db.cursor(buffered=True)
+def student_session(name):
+ while True:
+ print("")
+ print("1. VIEW ATTENDANCE")
+ print("2. DOWNLOAD ATTENDANCE")
+ print("3. LOGOUT")
+ user_option = input("OPTION: ")
+ if user_option == "1":
+ username = name
+ query.execute("SELECT name, date, status FROM attendance WHERE
+name=%s", (username,))
+ records = query.fetchall()
+ for record in records:
+ print(record)
+ elif user_option == "2":
+ username = name
+ query.execute("SELECT name, date, status FROM attendance WHERE
+name=%s", (username,))
+ records = query.fetchall()
+or record in records:
+ with open("C:/Users/prave/neDrive/Desktop/register.txt", "w") as f:
+ f.write(record+ "\n")
+ f.close()
+ 
+ elif user_option == "3":
+ print("LOGOUT SUCCESSFULLY")
+ break
+def auth_student():
+ print("")
+ print("STUDENT LOGIN")
+ print("")
+ username = input("USERNAME: ")
+ password = input("PASSWORD: ")
+ query_vals = (username, password, "student")
+ query.execute("SELECT name FROM users WHERE name=%s AND password=%s
+AND privilege=%s", query_vals)
+ if query.rowcount < 1:
+ print("ENTER CORRECT LOGIN CREDENTIALS")
+ else:
+ student_session(username)
+def teacher_session():
+ while True:
+ print("TEACHER MENU")
+ print("")
+ print("1. MARK STATUS OF REGISTER")
+ print("2. VIEW REGISTER")
+ print("3. LOGOUT")
+ print("4.STORE MARKS")
+ user_option = input("OPTION: ")
+ if user_option == "1":
+ print("MARK STUDENT REGISTER")
+ query.execute("SELECT name from users where privilege='student'")
+ records = query.fetchall()
+date = input("DATE: DD/MM/YYYY: ")
+ for record in records:
+ record = str(record[0])
+ status = input("STATUS FOR " + record + " (P/A/L): ")
+ query_vals = (record, date, status)
+ query.execute("INSERT INTO attendance (name, date, status) VALUES (%s,
+%s, %s)", query_vals)
+ db.commit()
+ print(record + " MARKED AS " + status)
+ elif user_option == "2":
+ print("VIEWING ALL STUDENTS REGISTER")
+ query.execute("SELECT name, date, status FROM attendance")
+ records = query.fetchall()
+ for record in records:
+ print(record)
+ elif user_option == "3":
+ print("LOGOUT SUCCESSFULLY")
+ break
+ elif user_option=="4":
+ query.execute("ALTER TABLE tests ADD city varchar(30);")
+def auth_teacher():
+ print("")
+ print("TEACHER LOGIN")
+ print("")
+ username = input("USERNAME: ")
+ password = input("PASSWORD: ")
+ query_vals = (username, password, "teacher")
+ query.execute("SELECT * FROM users WHERE name=%s AND password=%s AND
+privilege=%s", query_vals)
+ if query.rowcount < 1:
+ print("ENTER CORRECT LOGIN CREDENTIALS")
+ else:
+ teacher_session()
+def admin_session():
+ print("LOGIN SUCCESS WELCOME ADMIN")
+ while True:
+ print("")
+ print("ADMIN MENU")
+ print("1. REGISTER NEW STUDENT")
+ print("2. REGISTER NEW TEACHER")
+ print("3. DELETE EXISTING STUDENT")
+ print("4. DELETE EXISTING TEACHER")
+ print("5. LOGOUT")
+ user_option = input("OPTION: ")
+ if user_option == "1":
+ print("")
+ print("REGISTER NEW STUDENT")
+ username = input("STUDENT USERNAME: ")
+ password = input("STUDENT PASSWORD: ")
+ privilege = "student"
+ query_vals = (username, password, privilege)
+ query.execute("INSERT INTO users(name, password, privilege) VALUES (%s,
+%s, %s)", query_vals)
+ db.commit()
+ print(username + " has been registered as a student")
+ elif user_option == "2":
+ print("")
+ print("REGISTER NEW TEACHER")
+ username = input("TEACHER USERNAME: ")
+ password = input("TEACHER PASSWORD: ")
+ privilege = "teacher"
+ query_vals = (username, password, privilege)
+ query.execute("INSERT INTO users(name, password, privilege) VALUES (%s,
+%s, %s)", query_vals)
+ db.commit()
+ print(username + " has been registered as a teacher")
+ elif user_option == "3":
+ print("")
+ print("DELETE EXISTING STUDENT")
+ username = input("STUDENT USERNAME: ")
+privilege = "student"
+ query_vals = (username, privilege)
+ query.execute("DELETE FROM users WHERE name=%s AND privilege=%s",
+query_vals)
+ db.commit()
+ if query.rowcount < 1:
+ print("USER NOT FOUND")
+ else:
+ print(username + " has been deleted")
+ elif user_option == "4":
+ print("")
+ print("DELETE EXISTING TEACHER")
+ username = input("TEACHER USERNAME: ")
+ privilege = "teacher"
+ query_vals = (username, privilege)
+ query.execute("DELETE FROM users WHERE name=%s AND privilege=%s",
+query_vals)
+ db.commit()
+ if query.rowcount < 1:
+ print("USER NOT FOUND")
+ else:
+ print(username + " has been deleted")
+ elif user_option == "5":
+ print("LOGOUT SUCCESSFULLY")
+ break
+ else:
+ print("INVALID OPTION")
+def auth_admin():
+ print("")
+ print("ADMIN LOGIN")
+ print("")
+ username = input("USERNAME: ")
+ password = input("PASSWORD: ")
+ if username == "admin" and password == "admin123":
+ admin_session()
+ else:
+ print("INCORRECT USERNAME OR PASSWORD")
+def main():
+ while True:
+ print("WELCOME TO COLLEGE MANAGEMENT SYSTEM")
+ print("")
+ print("1. LOGIN AS A STUDENT")
+ print("2. LOGIN AS A TEACHER")
+ print("3. LOGIN AS AN ADMIN")
+ user_option = input("OPTION: ")
+ if user_option == "1":
+ auth_student()
+ elif user_option == "2":
+ auth_teacher()
+ elif user_option == "3":
+ auth_admin()
+ else:
+ print("NO VALID OPTION CHOSEN")
+if __name__ == "__main__":
+ main()
